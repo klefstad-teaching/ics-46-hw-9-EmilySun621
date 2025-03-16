@@ -49,12 +49,11 @@ void print_path(const vector<int>& path, int total) {
         cout << "No path found." << endl;
         return;
     }
-    
+
     for (size_t i = 0; i < path.size(); ++i) {
+        if (i > 0) cout << " ";  // Add space only **between** numbers
         cout << path[i];
-        if (i < path.size() - 1) {
-            cout << " ";
-        }
     }
+
     cout << "\nTotal cost is " << total << "\n";
 }
