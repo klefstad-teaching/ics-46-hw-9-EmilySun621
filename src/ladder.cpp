@@ -69,5 +69,5 @@ void print_word_ladder(const vector<string>& ladder) {
 void verify_word_ladder() {
     set<string> dictionary;
     load_words(dictionary, "words.txt");
-    print_word_ladder(find_word_ladder("cat", "dog", dictionary));
+    print_word_ladder(generate_word_ladder("cat", "dog", dictionary));
 }
