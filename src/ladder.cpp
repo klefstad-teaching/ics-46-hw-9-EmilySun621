@@ -14,6 +14,7 @@ void error(string word1, string word2, string msg) {
     cerr << "Error: " << msg << " (" << word1 << " -> " << word2 << ")" << endl;
 }
 
+// Function to check if two words are adjacent (one letter change, insertion, or deletion)
 bool is_adjacent(const string& word1, const string& word2) {
     if (word1 == word2) return true; // A word is always adjacent to itself
     if (abs((int)word1.length() - (int)word2.length()) > 1) return false;
@@ -35,6 +36,7 @@ bool is_adjacent(const string& word1, const string& word2) {
     return diff_count == 1 || (diff_count == 0 && abs((int)word1.length() - (int)word2.length()) == 1);
 }
 
+// Function to check if edit distance between two words is within a given limit
 bool edit_distance_within(const string& str1, const string& str2, int d) {
     int m = str1.length(), n = str2.length();
     if (abs(m - n) > d) return false;
@@ -53,10 +55,14 @@ bool edit_distance_within(const string& str1, const string& str2, int d) {
     return dp[m][n] <= d;
 }
 
+// Function to generate the shortest word ladder using BFS
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
+    if (begin_word == end_word) return {begin_word}; // Handle same word case immediately
+
     queue<vector<string>> ladders;
     ladders.push({begin_word});
     set<string> visited;
+    visited.insert(begin_word);
     
     while (!ladders.empty()) {
         int level_size = ladders.size();
@@ -82,9 +88,10 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
             visited.insert(word);
         }
     }
-    return {};
+    return {}; // No word ladder found
 }
 
+// Function to load words from a dictionary file into a set
 void load_words(set<string>& word_list, const string& file_name) {
     ifstream file(file_name);
     if (!file) {
@@ -97,6 +104,7 @@ void load_words(set<string>& word_list, const string& file_name) {
     }
 }
 
+// Function to print the word ladder
 void print_word_ladder(const vector<string>& ladder) {
     if (ladder.empty()) {
         cout << "No word ladder found." << endl;
@@ -110,6 +118,7 @@ void print_word_ladder(const vector<string>& ladder) {
     cout << "\n";
 }
 
+// Function to interactively verify a word ladder
 void verify_word_ladder() {
     set<string> word_list;
     load_words(word_list, "words.txt");
