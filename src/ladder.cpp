@@ -37,7 +37,7 @@ vector<string> generate_word_ladder(const string& start_word, const string& targ
     while (!ladder_queue.empty()) {
         auto current_ladder = ladder_queue.front(); ladder_queue.pop();
         for (const auto& word : dictionary) {
-            if (are_words_adjacent(current_ladder.back(), word) && seen_words.insert(word).second) {
+            if (is_adjacent(current_ladder.back(), word) && seen_words.insert(word).second) {
                 auto new_ladder = current_ladder;
                 new_ladder.push_back(word);
                 if (word == target_word) return new_ladder;
@@ -68,6 +68,6 @@ void print_word_ladder(const vector<string>& ladder) {
 
 void verify_word_ladder() {
     set<string> dictionary;
-    load_dictionary(dictionary, "words.txt");
-    display_word_ladder(find_word_ladder("cat", "dog", dictionary));
+    load_words(dictionary, "words.txt");
+    print_word_ladder(find_word_ladder("cat", "dog", dictionary));
 }
