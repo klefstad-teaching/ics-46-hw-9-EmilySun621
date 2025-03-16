@@ -52,25 +52,6 @@ vector<string> generate_word_ladder(const string& start_word, const string& targ
         }
     }
     return {};
-};
-    if (!dictionary.count(target_word)) return {};
-    
-    queue<vector<string>> ladder_queue;
-    set<string> seen_words = {start_word};
-    ladder_queue.push({start_word});
-    
-    while (!ladder_queue.empty()) {
-        auto current_ladder = ladder_queue.front(); ladder_queue.pop();
-        for (const auto& word : dictionary) {
-            if (is_adjacent(current_ladder.back(), word) && seen_words.insert(word).second) {
-                auto new_ladder = current_ladder;
-                new_ladder.push_back(word);
-                if (word == target_word) return new_ladder;
-                ladder_queue.push(new_ladder);
-            }
-        }
-    }
-    return {};
 }
 
 void load_words(set<string>& word_list, const string& file_name) {
