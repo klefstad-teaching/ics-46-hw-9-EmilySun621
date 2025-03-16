@@ -27,7 +27,7 @@ bool is_adjacent(const string& word1, const string& word2) {
 }
 
 vector<string> generate_word_ladder(const string& start_word, const string& target_word, const set<string>& dictionary) {
-    if (start_word == target_word) return {start_word};
+    if (start_word == target_word) return {};
     if (!dictionary.count(target_word)) return {};
     
     queue<vector<string>> queue_ladders;
@@ -54,19 +54,20 @@ vector<string> generate_word_ladder(const string& start_word, const string& targ
 
 
 
-void load_words(set<string>& word_list, const string& file_name) {
-    ifstream in(file_name);
-    if (!in) {
-        throw runtime_error("Can't open dictionary file: " + file_name);
+void load_words(set<string>& dictionary, const string& file_path) {
+    ifstream file(file_path);
+    if (!file.is_open()) {
+        cerr << "Error: Unable to open file " << file_path << "\n";
+        return;
     }
-    
     string word;
-    while (in >> word) {
-        for (char& c : word) c = tolower(c);
-        word_list.insert(word);
+    while (getline(file, word)) {
+        transform(word.begin(), word.end(), word.begin(), ::tolower);
+        dictionary.insert(word);
     }
-    in.close();
+    file.close();
 }
+
 
 void print_word_ladder(const vector<string>& ladder) {
     if (ladder.empty()) {
@@ -76,10 +77,9 @@ void print_word_ladder(const vector<string>& ladder) {
     
     cout << "Word ladder found: ";
     for (size_t i = 0; i < ladder.size(); ++i) {
+        if (i > 0) cout << " ";
         cout << ladder[i];
-        if (i < ladder.size() - 1) cout << " ";
     }
-    cout << " ";
     cout << "\n";
 }
 
