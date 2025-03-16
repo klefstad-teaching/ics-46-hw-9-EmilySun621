@@ -9,11 +9,11 @@
 
 using namespace std;
 
-void display_error(string start_word, string target_word, string message) {
+void error(string start_word, string target_word, string message) {
     cerr << "Error: " << message << " (" << start_word << " -> " << target_word << ")\n";
 }
 
-bool is_edit_distance_within(const string& first_word, const string& second_word, int max_distance) {
+bool edit_distance_within(const string& first_word, const string& second_word, int max_distance) {
     if (abs((int)first_word.size() - (int)second_word.size()) > max_distance) return false;
     int difference_count = 0;
     for (size_t i = 0, j = 0; i < first_word.size() && j < second_word.size(); i++, j++) {
@@ -22,11 +22,11 @@ bool is_edit_distance_within(const string& first_word, const string& second_word
     return true;
 }
 
-bool are_words_adjacent(const string& first_word, const string& second_word) {
+bool is_adjacent(const string& first_word, const string& second_word) {
     return is_edit_distance_within(first_word, second_word, 1);
 }
 
-vector<string> find_word_ladder(const string& start_word, const string& target_word, const set<string>& dictionary) {
+vector<string> generate_word_ladder(const string& start_word, const string& target_word, const set<string>& dictionary) {
     if (start_word == target_word) return {start_word};
     if (!dictionary.count(target_word)) return {};
     
@@ -48,12 +48,12 @@ vector<string> find_word_ladder(const string& start_word, const string& target_w
     return {};
 }
 
-void load_dictionary(set<string>& dictionary, const string& file_path) {
+void load_words(set<string>& dictionary, const string& file_path) {
     ifstream file_input(file_path);
     for (string word; file_input >> word;) dictionary.insert(word);
 }
 
-void display_word_ladder(const vector<string>& ladder) {
+void print_word_ladder(const vector<string>& ladder) {
     if (ladder.empty()) {
         cout << "No word ladder found.\n";
         return;
@@ -66,7 +66,7 @@ void display_word_ladder(const vector<string>& ladder) {
     cout << "\n";
 }
 
-void test_word_ladder() {
+void verify_word_ladder() {
     set<string> dictionary;
     load_dictionary(dictionary, "words.txt");
     display_word_ladder(find_word_ladder("cat", "dog", dictionary));
