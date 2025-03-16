@@ -1,4 +1,14 @@
-#include "ladder.h"
+#include "your_header_file.h"
+#include <iostream>
+#include <fstream>
+#include <queue>
+#include <set>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
 
 void error(string word1, string word2, string msg) {
     cerr << "Error: " << msg << " (" << word1 << " -> " << word2 << ")" << endl;
@@ -22,6 +32,24 @@ bool is_adjacent(const string& word1, const string& word2) {
         }
     }
     return diff_count == 1 || (diff_count == 0 && abs((int)word1.length() - (int)word2.length()) == 1);
+}
+
+bool edit_distance_within(const string& str1, const string& str2, int d) {
+    int m = str1.length(), n = str2.length();
+    if (abs(m - n) > d) return false;
+
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    
+    for (int i = 0; i <= m; i++) {
+        for (int j = 0; j <= n; j++) {
+            if (i == 0) dp[i][j] = j;
+            else if (j == 0) dp[i][j] = i;
+            else if (str1[i - 1] == str2[j - 1]) dp[i][j] = dp[i - 1][j - 1];
+            else dp[i][j] = 1 + min({dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]});
+        }
+    }
+    
+    return dp[m][n] <= d;
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
