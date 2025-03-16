@@ -4,104 +4,79 @@ void error(string word1, string word2, string msg) {
     cerr << "Error with words '" << word1 << "' and '" << word2 << "': " << msg << "\n";
 }
 
-
-bool edit_distance_within(const string& str1, const string& str2, int max_diff) {
-    int len1 = str1.length();
-    int len2 = str2.length();
-
-    if (abs(len1 - len2) > max_diff) {
-        return false;
-    }
-    int pos1 = 0, pos2 = 0, differences = 0;
-    while (pos1 < len1 || pos2 < len2) {
-
-        if (differences > max_diff) {
-            return false;
-        }
-
-        if (pos1 < len1 && pos2 < len2) {
-            if (str1[pos1] == str2[pos1]) {
-                pos1++;
-                pos2++;
-            } else {
-                differences++;
-                if (len1 > len2) pos1++;      // Extra char in str1
-                else if (len2 > len1) pos2++; // Extra char in str2
-                else { pos1++; pos2++; }      // Substitution
-            }
-        }
-        else {
-            differences += (len1 - pos1) + (len2 - pos2);
-            break;
+bool edit_distance_within(const string& first_word, const string& second_word, int max_distance) {
+    int len1 = first_word.size(), len2 = second_word.size();
+    if (abs(len1 - len2) > max_distance) return false;
+    
+    int diff_count = 0, i = 0, j = 0;
+    while (i < len1 || j < len2) {
+        if (i < len1 && j < len2 && first_word[i] == second_word[j]) {
+            i++; j++;
+        } else {
+            diff_count++;
+            if (diff_count > max_distance) return false;
+            if (len1 > len2) i++;
+            else if (len1 < len2) j++;
+            else { i++; j++; }
         }
     }
-
-    return differences <= max_diff;
-}
-
-
-bool is_adjacent(const string& word1, const string& word2) {
-    return edit_distance_within(word1, word2, 1);
+    return true;
 }
 
 vector<string> generate_word_ladder(const string& start_word, 
-                                 const string& goal_word, 
-                                 const set<string>& dictionary) {
+                                    const string& goal_word, 
+                                    const set<string>& dictionary) {
+    // Convert input words to lowercase directly
+    string start_word_lower = start_word;
+    string goal_word_lower = goal_word;
+    transform(start_word_lower.begin(), start_word_lower.end(), start_word_lower.begin(), ::tolower);
+    transform(goal_word_lower.begin(), goal_word_lower.end(), goal_word_lower.begin(), ::tolower);
 
-    string start = start_word;
-    string goal = goal_word;
-    for (char& letter : start) letter = tolower(letter);
-    for (char& letter : goal) letter = tolower(letter);
-
-
-    if (start == goal) {
+    // Validate input conditions
+    if (start_word_lower == goal_word_lower) {
         error(start_word, goal_word, "Starting and ending words cannot be identical");
         return {};
     }
-
-    if (dictionary.find(goal) == dictionary.end()) {
+    if (dictionary.count(goal_word_lower) == 0) {
         error(start_word, goal_word, "Goal word not found in dictionary");
         return {};
     }
 
- 
-    queue<vector<string>> chain_queue;
-    set<string> explored_words;
+    // Use BFS to find the shortest word ladder
+    queue<vector<string>> ladders;
+    set<string> visited;
     
-    chain_queue.push({start});
+    ladders.push({start_word_lower});
+    visited.insert(start_word_lower);
 
+    while (!ladders.empty()) {
+        int current_level_size = ladders.size();
+        set<string> level_words;
 
-    while (!chain_queue.empty()) {
-        int level_size = chain_queue.size();
-        set<string> words_to_track;
+        for (int i = 0; i < current_level_size; ++i) {
+            vector<string> ladder = ladders.front();
+            ladders.pop();
+            const string& current_word = ladder.back();
 
-        // Process each chain at current level
-        for (int count = 0; count < level_size; count++) {
-            vector<string> current_chain = chain_queue.front();
-            chain_queue.pop();
-            string current_end = current_chain.back();
+            for (const string& candidate : dictionary) {
+                if (visited.count(candidate) == 0 && is_adjacent(current_word, candidate)) {
+                    vector<string> new_ladder = ladder;
+                    new_ladder.push_back(candidate);
 
-            // Check each dictionary word
-            for (const string& next_word : dictionary) {
-                if (is_adjacent(current_end, next_word) && 
-                    explored_words.find(next_word) == explored_words.end()) {
-                    vector<string> extended_chain = current_chain;
-                    extended_chain.push_back(next_word);
-
-                    if (next_word == goal) {
-                        return extended_chain;
+                    if (candidate == goal_word_lower) {
+                        return new_ladder;  // Found the shortest ladder
                     }
-                    
-                    chain_queue.push(extended_chain);
-                    words_to_track.insert(next_word);
+
+                    ladders.push(new_ladder);
+                    level_words.insert(candidate);
                 }
             }
         }
-        // Update explored words after level is complete
-        explored_words.insert(words_to_track.begin(), words_to_track.end());
+        // Mark all words from this level as visited
+        visited.insert(level_words.begin(), level_words.end());
     }
-    
-    return {};
+
+    return {};  // No ladder found
 }
 
 
