@@ -1,4 +1,4 @@
-#include "ladder.h"
+#include "ladder.h" 
 
 void error(string word1, string word2, string msg) {
     cerr << "Error with words '" << word1 << "' and '" << word2 << "': " << msg << "\n";
@@ -82,6 +82,8 @@ void print_word_ladder(const vector<string>& ladder) {
     cout << " ";
     cout << "\n";
 }
+
+
 
 void verify_word_ladder() {
     set<string> word_list;
