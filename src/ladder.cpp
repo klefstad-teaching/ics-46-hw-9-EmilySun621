@@ -23,6 +23,41 @@ bool edit_distance_within(const string& first_word, const string& second_word, i
     return true;
 }
 
+bool edit_distance_within(const string& str1, const string& str2, int max_diff) {
+    int len1 = str1.length();
+    int len2 = str2.length();
+
+    if (abs(len1 - len2) > max_diff) {
+        return false;
+    }
+    int pos1 = 0, pos2 = 0, differences = 0;
+    while (pos1 < len1 || pos2 < len2) {
+
+        if (differences > max_diff) {
+            return false;
+        }
+
+        if (pos1 < len1 && pos2 < len2) {
+            if (str1[pos1] == str2[pos1]) {
+                pos1++;
+                pos2++;
+            } else {
+                differences++;
+                if (len1 > len2) pos1++;      // Extra char in str1
+                else if (len2 > len1) pos2++; // Extra char in str2
+                else { pos1++; pos2++; }      // Substitution
+            }
+        }
+        else {
+            differences += (len1 - pos1) + (len2 - pos2);
+            break;
+        }
+    }
+
+    return differences <= max_diff;
+}
+
+
 bool is_adjacent(const string& word1, const string& word2) {
     return edit_distance_within(word1, word2, 1);
 }
