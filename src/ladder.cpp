@@ -3,9 +3,9 @@
 #include <fstream>
 #include <queue>
 #include <set>
-#include <map>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <cmath>
 
 using namespace std;
@@ -14,50 +14,53 @@ void error(string word1, string word2, string msg) {
     cerr << "Error: " << msg << " (" << word1 << " -> " << word2 << ")" << endl;
 }
 
-bool edit_distance_within(const string& str1, const string& str2, int d) {
-    if (abs(int(str1.length()) - int(str2.length())) > d) return false;
-    int count = 0;
-    for (size_t i = 0; i < min(str1.length(), str2.length()); ++i) {
-        if (str1[i] != str2[i]) {
-            count++;
-            if (count > d) return false;
-        }
-    }
-    return count <= d;
-}
-
 bool is_adjacent(const string& word1, const string& word2) {
-    if (word1.length() != word2.length()) return false;
+    if (abs((int)word1.length() - (int)word2.length()) > 1) return false;
+
     int diff_count = 0;
-    for (size_t i = 0; i < word1.length(); ++i) {
-        if (word1[i] != word2[i]) {
+    size_t i = 0, j = 0;
+    
+    while (i < word1.length() && j < word2.length()) {
+        if (word1[i] != word2[j]) {
             diff_count++;
             if (diff_count > 1) return false;
+            if (word1.length() > word2.length()) i++;
+            else if (word1.length() < word2.length()) j++;
+            else { i++; j++; }
+        } else {
+            i++; j++;
         }
     }
-    return diff_count == 1;
+    return diff_count == 1 || (diff_count == 0 && abs((int)word1.length() - (int)word2.length()) == 1);
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
     queue<vector<string>> ladders;
     ladders.push({begin_word});
     set<string> visited;
-    visited.insert(begin_word);
     
     while (!ladders.empty()) {
-        vector<string> ladder = ladders.front();
-        ladders.pop();
-        string last_word = ladder.back();
+        int level_size = ladders.size();
+        set<string> words_used_in_this_level;
         
-        if (last_word == end_word) return ladder;
-        
-        for (const string& word : word_list) {
-            if (is_adjacent(last_word, word) && !visited.count(word)) {
-                vector<string> new_ladder = ladder;
-                new_ladder.push_back(word);
-                ladders.push(new_ladder);
-                visited.insert(word);
+        for (int i = 0; i < level_size; i++) {
+            vector<string> ladder = ladders.front();
+            ladders.pop();
+            string last_word = ladder.back();
+            
+            if (last_word == end_word) return ladder;
+            
+            for (const string& word : word_list) {
+                if (is_adjacent(last_word, word) && !visited.count(word)) {
+                    vector<string> new_ladder = ladder;
+                    new_ladder.push_back(word);
+                    ladders.push(new_ladder);
+                    words_used_in_this_level.insert(word);
+                }
             }
+        }
+        for (const string& word : words_used_in_this_level) {
+            visited.insert(word);
         }
     }
     return {};
@@ -77,9 +80,10 @@ void load_words(set<string>& word_list, const string& file_name) {
 
 void print_word_ladder(const vector<string>& ladder) {
     if (ladder.empty()) {
-        cout << "No ladder found." << endl;
+        cout << "No word ladder found." << endl;
         return;
     }
+    cout << "Word ladder found: ";
     for (size_t i = 0; i < ladder.size(); ++i) {
         cout << ladder[i];
         if (i < ladder.size() - 1) cout << " -> ";
