@@ -26,60 +26,56 @@ bool is_adjacent(const string& word1, const string& word2) {
     return edit_distance_within(word1, word2, 1);
 }
 
-vector<string> generate_word_ladder(const string& start_word, 
-                                    const string& goal_word, 
-                                    const set<string>& dictionary) {
+vector<string> generate_word_ladder(const string& begin_word, 
+                                    const string& end_word, 
+                                    const set<string>& word_list) {
+    string begin_lower = begin_word;
+    string end_lower = end_word;
+    for (char& c : begin_lower) c = tolower(c);
+    for (char& c : end_lower) c = tolower(c);
 
-    string start_word_lower = start_word;
-    string goal_word_lower = goal_word;
-    transform(start_word_lower.begin(), start_word_lower.end(), start_word_lower.begin(), ::tolower);
-    transform(goal_word_lower.begin(), goal_word_lower.end(), goal_word_lower.begin(), ::tolower);
-
-
-    if (start_word_lower == goal_word_lower) {
-        error(start_word, goal_word, "Starting and ending words cannot be identical");
-        return {};
-    }
-    if (dictionary.count(goal_word_lower) == 0) {
-        error(start_word, goal_word, "Goal word not found in dictionary");
+    if (begin_lower == end_lower) {
+        error(begin_word, end_word, "Start and end words must be different");
         return {};
     }
 
-    queue<vector<string>> ladders;
+    if (word_list.find(end_lower) == word_list.end()) {
+        error(begin_word, end_word, "End word not in dictionary");
+        return {};
+    }
+
+    queue<vector<string>> ladder_queue;
     set<string> visited;
     
-    ladders.push({start_word_lower});
-    visited.insert(start_word_lower);
+    ladder_queue.push({begin_lower});
 
-    while (!ladders.empty()) {
-        int current_level_size = ladders.size();
-        set<string> level_words;
+    while (!ladder_queue.empty()) {
+        int queue_size = ladder_queue.size();
+        set<string> words_to_mark;
 
-        for (int i = 0; i < current_level_size; ++i) {
-            vector<string> ladder = ladders.front();
-            ladders.pop();
-            const string& current_word = ladder.back();
+        for (int i = 0; i < queue_size; i++) {
+            vector<string> ladder = ladder_queue.front();
+            ladder_queue.pop();
+            string last_word = ladder.back();
 
-            for (const string& candidate : dictionary) {
-                if (visited.count(candidate) == 0 && is_adjacent(current_word, candidate)) {
+            for (const string& word : word_list) {
+                if (is_adjacent(last_word, word) && visited.find(word) == visited.end()) {
                     vector<string> new_ladder = ladder;
-                    new_ladder.push_back(candidate);
+                    new_ladder.push_back(word);
 
-                    if (candidate == goal_word_lower) {
-                        return new_ladder; 
-                    }
-
-                    ladders.push(new_ladder);
-                    level_words.insert(candidate);
+                    if (word == end_lower) return new_ladder;
+                    
+                    ladder_queue.push(new_ladder);
+                    words_to_mark.insert(word);
                 }
             }
         }
-        // Mark all words from this level as visited
-        visited.insert(level_words.begin(), level_words.end());
+        visited.insert(words_to_mark.begin(), words_to_mark.end());
     }
-
-    return {};  // No ladder found
+    return {};
 }
+
+
 
 
 void load_words(set<string>& word_list, const string& file_name) {
