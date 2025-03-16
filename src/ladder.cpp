@@ -7,7 +7,6 @@ void error(string word1, string word2, string msg) {
 bool edit_distance_within(const string& first_word, const string& second_word, int max_distance) {
     int len1 = first_word.size(), len2 = second_word.size();
     if (abs(len1 - len2) > max_distance) return false;
-    
     int diff_count = 0, i = 0, j = 0;
     while (i < len1 || j < len2) {
         if (i < len1 && j < len2 && first_word[i] == second_word[j]) {
@@ -23,16 +22,20 @@ bool edit_distance_within(const string& first_word, const string& second_word, i
     return true;
 }
 
+bool is_adjacent(const string& word1, const string& word2) {
+    return edit_distance_within(word1, word2, 1);
+}
+
 vector<string> generate_word_ladder(const string& start_word, 
                                     const string& goal_word, 
                                     const set<string>& dictionary) {
-    // Convert input words to lowercase directly
+
     string start_word_lower = start_word;
     string goal_word_lower = goal_word;
     transform(start_word_lower.begin(), start_word_lower.end(), start_word_lower.begin(), ::tolower);
     transform(goal_word_lower.begin(), goal_word_lower.end(), goal_word_lower.begin(), ::tolower);
 
-    // Validate input conditions
+
     if (start_word_lower == goal_word_lower) {
         error(start_word, goal_word, "Starting and ending words cannot be identical");
         return {};
@@ -42,7 +45,6 @@ vector<string> generate_word_ladder(const string& start_word,
         return {};
     }
 
-    // Use BFS to find the shortest word ladder
     queue<vector<string>> ladders;
     set<string> visited;
     
@@ -64,7 +66,7 @@ vector<string> generate_word_ladder(const string& start_word,
                     new_ladder.push_back(candidate);
 
                     if (candidate == goal_word_lower) {
-                        return new_ladder;  // Found the shortest ladder
+                        return new_ladder; 
                     }
 
                     ladders.push(new_ladder);
