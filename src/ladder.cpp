@@ -28,28 +28,52 @@ bool is_adjacent(const string& word1, const string& word2) {
 }
 
 vector<string> generate_word_ladder(const string& start_word, const string& target_word, const set<string>& dictionary) {
-    if (start_word == target_word) return {start_word};
-    if (!dictionary.count(target_word)) return {};
+    string start_lower = start_word;
+    string target_lower = target_word;
+    for (char& c : start_lower) c = tolower(c);
+    for (char& c : target_lower) c = tolower(c);
+
+    if (start_lower == target_lower) {
+        error(start_word, target_word, "Start and end words must be different");
+        return {};
+    }
+    if (!dictionary.count(target_lower)) {
+        error(start_word, target_word, "End word not in dictionary");
+        return {};
+    }
     
+    if (!edit_distance_within(start_lower, target_lower, dictionary.size())) {
+        return {};
+    }
+
     queue<pair<string, vector<string>>> ladder_queue;
-    set<string> seen_words;
-    ladder_queue.push({start_word, {start_word}});
-    seen_words.insert(start_word);
+    set<string> visited;
+    ladder_queue.push({start_lower, {start_lower}});
+    visited.insert(start_lower);
     
     while (!ladder_queue.empty()) {
-        auto [current_word, current_ladder] = ladder_queue.front(); ladder_queue.pop();
+        int queue_size = ladder_queue.size();
+        set<string> words_to_mark; 
         
-        for (const auto& word : dictionary) {
-            if (is_adjacent(current_word, word) && !seen_words.count(word)) {
-                vector<string> new_ladder = current_ladder;
-                new_ladder.push_back(word);
-                
-                if (word == target_word) return new_ladder;
-                
-                ladder_queue.push({word, new_ladder});
-                seen_words.insert(word);
+        for (int i = 0; i < queue_size; i++) {
+            auto [current_word, current_ladder] = ladder_queue.front();
+            ladder_queue.pop();
+            
+            for (const auto& word : dictionary) {
+                if (is_adjacent(current_word, word) && visited.find(word) == visited.end()) {
+                    vector<string> new_ladder = current_ladder;
+                    new_ladder.push_back(word);
+                    
+                    if (word == target_lower) {
+                        return new_ladder;
+                    }
+                    
+                    ladder_queue.push({word, new_ladder});
+                    words_to_mark.insert(word);
+                }
             }
         }
+        visited.insert(words_to_mark.begin(), words_to_mark.end());
     }
     return {};
 }
