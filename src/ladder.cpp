@@ -23,7 +23,7 @@ bool edit_distance_within(const string& first_word, const string& second_word, i
 }
 
 bool is_adjacent(const string& first_word, const string& second_word) {
-    return is_edit_distance_within(first_word, second_word, 1);
+    return dit_distance_within(first_word, second_word, 1);
 }
 
 vector<string> generate_word_ladder(const string& start_word, const string& target_word, const set<string>& dictionary) {
