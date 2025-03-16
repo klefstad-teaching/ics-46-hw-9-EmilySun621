@@ -4,24 +4,6 @@ void error(string word1, string word2, string msg) {
     cerr << "Error with words '" << word1 << "' and '" << word2 << "': " << msg << "\n";
 }
 
-bool edit_distance_within(const string& first_word, const string& second_word, int max_distance) {
-    int len1 = first_word.size(), len2 = second_word.size();
-    if (abs(len1 - len2) > max_distance) return false;
-    
-    int diff_count = 0, i = 0, j = 0;
-    while (i < len1 || j < len2) {
-        if (i < len1 && j < len2 && first_word[i] == second_word[j]) {
-            i++; j++;
-        } else {
-            diff_count++;
-            if (diff_count > max_distance) return false;
-            if (len1 > len2) i++;
-            else if (len1 < len2) j++;
-            else { i++; j++; }
-        }
-    }
-    return true;
-}
 
 bool edit_distance_within(const string& str1, const string& str2, int max_diff) {
     int len1 = str1.length();
